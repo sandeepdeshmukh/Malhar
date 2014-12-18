@@ -553,10 +553,10 @@ public abstract class AbstractBlockReader<R> extends BaseOperator implements
    */
   protected static class Entity
   {
-    byte[] record;
-    long usedBytes;
+    public byte[] record;
+    public long usedBytes;
 
-    void clear()
+    public void clear()
     {
       record = null;
       usedBytes = -1;
