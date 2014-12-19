@@ -237,7 +237,7 @@ public abstract class AbstractBlockReader<R> extends BaseOperator implements
       }
     }
     finally {
-      closeCurrentReader();
+//      closeCurrentReader();
     }
     counters.getCounter(ReaderCounterKeys.TIME).add(System.currentTimeMillis() - blockStartTime);
   }

@@ -35,7 +35,7 @@ public class FixedBytesBlockReader extends AbstractBlockReader<Slice>
   public FixedBytesBlockReader()
   {
     super();
-    length = 100;
+    length = 1024*1024;
     entity = new Entity();
   }
 
