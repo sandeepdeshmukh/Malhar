@@ -20,22 +20,24 @@ import java.util.List;
 import org.apache.hadoop.conf.Configuration;
 import org.junit.Assert;
 import org.junit.Test;
-
-import com.google.common.collect.Lists;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.StreamingApplication;
-
+import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.testbench.RandomWordGenerator;
+import com.google.common.collect.Lists;
 
 /**
  * Test class to test {@link AbstractReconciler}
  */
 public class AbstractReconcilerTest
 {
+  private static final Logger logger = LoggerFactory.getLogger(AbstractReconcilerTest.class);
   public static class TestReconciler extends AbstractReconciler<byte[], TestMeta>
   {
     private long currentCommittedWindow;
@@ -65,6 +67,7 @@ public class AbstractReconcilerTest
     @Override
     protected void processCommittedData(TestMeta meta)
     {
+      logger.debug("processCommittedData: @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
       // only committed windows have to be processed
       Assert.assertTrue("processing window id should not be greater than commited window id", meta.windowid <= currentCommittedWindow);
     }
@@ -72,8 +75,17 @@ public class AbstractReconcilerTest
     @Override
     public void committed(long l)
     {
+      logger.debug("committing window: " + l + " $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
       currentCommittedWindow = l;
       super.committed(l);
+//      throw new RuntimeException("This exception should be thrown.");
+    }
+    
+    @Override
+    public void checkpointed(long l)
+    {
+      logger.debug("checkpointing window: " + l + " ##############################");
+      super.checkpointed(l);
     }
 
   }
@@ -84,6 +96,7 @@ public class AbstractReconcilerTest
     String data;
   }
 
+  @ApplicationAnnotation(name="TestReconciler")
   public static class TestDag implements StreamingApplication
   {
     @Override
@@ -101,10 +114,11 @@ public class AbstractReconcilerTest
   {
     LocalMode lma = LocalMode.newInstance();
     Configuration configuration = new Configuration();
+    configuration.set("dt.application.TestReconciler.attr.CHECKPOINT_WINDOW_COUNT","10");
     lma.prepareDAG(new TestDag(),configuration);
     LocalMode.Controller lc = lma.getController();
     lc.setHeartbeatMonitoringEnabled(false);
-    lc.run(15000);
+    lc.run(125000);
     lc.shutdown();
   }
 
@@ -124,6 +138,7 @@ public class AbstractReconcilerTest
     {
       outputPort.emit(meta);
     }
+        
   }
 
   @Test
@@ -167,5 +182,5 @@ public class AbstractReconcilerTest
     Assert.assertEquals(output, sink.collectedTuples);
     reconciler1.teardown();
   }
-
+  
 }
