@@ -626,7 +626,7 @@ public class FileSplitter implements InputOperator
     protected final transient ExecutorService scanService;
     protected final transient AtomicReference<Throwable> atomicThrowable;
 
-    private transient volatile boolean running;
+    protected transient volatile boolean running;
     protected final transient HashSet<String> ignoredFiles;
     protected transient Pattern regex;
     protected transient long sleepMillis;
