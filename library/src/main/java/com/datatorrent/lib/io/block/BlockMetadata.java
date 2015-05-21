@@ -172,5 +172,11 @@ public interface BlockMetadata
     {
       return filePath;
     }
+
+    @Override
+    public int hashCode()
+    {
+      return filePath.hashCode();
+    }
   }
 }
